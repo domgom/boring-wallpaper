@@ -1,0 +1,1009 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Boring Wallpaper Studio</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Playfair+Display:wght@400;700&family=Space+Mono:wght@400;700&family=Bebas+Neue&family=Merriweather:wght@400;700&family=Fira+Code:wght@400;600&family=EB+Garamond:wght@400;700&family=Anton&family=Courier+Prime:wght@400;700&family=Oswald:wght@400;700&family=Rajdhani:wght@400;700&family=Barlow+Condensed:wght@400;700&family=Permanent+Marker&family=Special+Elite&family=Libre+Baskerville:wght@400;700&family=Lora:wght@400;700&family=DM+Serif+Display&family=Cinzel:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0a;
+    --surface: #111;
+    --surface2: #1a1a1a;
+    --border: #222;
+    --accent: #e8e0d0;
+    --muted: #555;
+    --text: #ccc;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; overflow: hidden; }
+
+  body {
+    font-family: 'DM Mono', monospace;
+    background: var(--bg);
+    color: var(--text);
+    display: flex;
+    flex-direction: column;
+  }
+
+  header {
+    padding: 12px 24px 10px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: baseline;
+    gap: 14px;
+    flex-shrink: 0;
+  }
+  header h1 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 24px;
+    letter-spacing: 3px;
+    color: var(--accent);
+  }
+  header span {
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+
+  .workspace {
+    display: flex;
+    flex: 1;
+    overflow: hidden;
+    min-height: 0;
+  }
+
+  /* ── Left panel ── */
+  .controls {
+    width: 300px;
+    min-width: 260px;
+    border-right: 1px solid var(--border);
+    overflow-y: auto;
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    flex-shrink: 0;
+  }
+
+  .section {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    overflow: visible;
+  }
+  .section-header {
+    padding: 7px 12px;
+    background: var(--surface2);
+    border-bottom: 1px solid var(--border);
+    border-radius: 6px 6px 0 0;
+    font-size: 10px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--muted);
+    display: flex;
+    align-items: center;
+    gap: 7px;
+  }
+  .section-header::before {
+    content: '';
+    display: inline-block;
+    width: 5px; height: 5px;
+    border-radius: 50%;
+    background: var(--accent);
+    opacity: 0.4;
+    flex-shrink: 0;
+  }
+  .section-body {
+    padding: 11px 13px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  label {
+    display: block;
+    font-size: 10px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 4px;
+  }
+
+  input[type="number"], select {
+    width: 100%;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    color: var(--accent);
+    padding: 6px 9px;
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    border-radius: 4px;
+    outline: none;
+    transition: border-color 0.2s;
+    appearance: none;
+  }
+  input:focus, select:focus { border-color: var(--accent); }
+
+  .row { display: flex; gap: 9px; }
+  .row > * { flex: 1; }
+
+  input[type="color"] {
+    width: 100%;
+    height: 34px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 3px;
+    cursor: pointer;
+  }
+  input[type="range"] {
+    width: 100%;
+    accent-color: var(--accent);
+    cursor: pointer;
+  }
+
+  .radio-group {
+    display: flex;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+  .radio-group label {
+    flex: 1; margin: 0;
+    display: flex; align-items: center; justify-content: center;
+    padding: 7px 8px;
+    font-size: 10px; letter-spacing: 1px;
+    cursor: pointer;
+    background: var(--bg); color: var(--muted);
+    transition: all 0.15s;
+    border-right: 1px solid var(--border);
+  }
+  .radio-group label:last-child { border-right: none; }
+  .radio-group input[type="radio"] { display: none; }
+  .radio-group label:has(input:checked) { background: var(--accent); color: #000; }
+
+  .stop-row { display: flex; align-items: center; gap: 7px; }
+  .stop-row input[type="color"] { width: 34px; height: 26px; flex-shrink: 0; }
+  .stop-row input[type="range"] { flex: 1; }
+  .stop-label { font-size: 10px; color: var(--muted); width: 26px; text-align: right; flex-shrink: 0; }
+
+  .reset-btn {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    padding: 4px 8px;
+    border-radius: 3px;
+    cursor: pointer;
+    transition: all 0.15s;
+    margin-left: auto;
+  }
+  .reset-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+  /* Font row: select + dice button */
+  .font-row {
+    display: flex;
+    gap: 6px;
+    align-items: stretch;
+  }
+  .font-row select { flex: 1; }
+  .dice-btn {
+    flex-shrink: 0;
+    width: 34px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    color: var(--muted);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.15s;
+    font-size: 16px;
+    line-height: 1;
+    user-select: none;
+  }
+  .dice-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .dice-btn.spin { animation: diceSpin 0.35s ease; }
+  @keyframes diceSpin {
+    0%   { transform: rotate(0deg)   scale(1); }
+    40%  { transform: rotate(180deg) scale(1.3); }
+    100% { transform: rotate(360deg) scale(1); }
+  }
+
+  .hint { font-size: 10px; color: var(--muted); font-style: italic; line-height: 1.5; }
+
+  .download-btn {
+    width: 100%;
+    padding: 15px;
+    background: var(--accent);
+    color: #000;
+    border: none;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 20px;
+    letter-spacing: 4px;
+    cursor: pointer;
+    border-radius: 6px;
+    transition: opacity 0.2s;
+    flex-shrink: 0;
+  }
+  .download-btn:hover { opacity: 0.85; }
+
+  .controls::-webkit-scrollbar { width: 4px; }
+  .controls::-webkit-scrollbar-track { background: transparent; }
+  .controls::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+  select option { background: #111; }
+
+  /* ── Right preview pane ── */
+  .preview-area {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    padding: 24px 32px 16px;
+    gap: 10px;
+    background: #050505;
+    overflow: hidden;
+    position: relative;
+  }
+
+  /* Phone shell */
+  .phone-frame {
+    position: relative;
+    border-radius: 36px;
+    box-shadow:
+      0 0 0 2px #333,
+      0 0 0 6px #111,
+      0 0 0 7px #2a2a2a,
+      0 16px 44px rgba(0,0,0,0.95);
+    background: #000;
+    flex-shrink: 0;
+    overflow: hidden;
+    transition: box-shadow 0.2s;
+  }
+
+  .phone-notch {
+    position: absolute;
+    top: 9px; left: 50%;
+    transform: translateX(-50%);
+    width: 62px; height: 17px;
+    background: #111;
+    border-radius: 20px;
+    z-index: 30;
+    pointer-events: none;
+  }
+
+  canvas#previewCanvas {
+    display: block;
+    position: absolute;
+    top: 0; left: 0;
+    z-index: 1;
+    transition: opacity 0.15s;
+  }
+
+  /*
+   * IN-PLACE TEXTAREA
+   * Sits exactly over the canvas. In edit mode the canvas fades,
+   * the textarea becomes visible with matched font/color/size and
+   * precise padding so text appears in the exact same position.
+   */
+  #editTextarea {
+    display: none;
+    position: absolute;
+    top: 0; left: 0;
+    z-index: 20;
+    width: 100%; height: 100%;
+    background: transparent;
+    border: none;
+    outline: none;
+    resize: none;
+    overflow: hidden;
+    /* font/color/padding set dynamically */
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+
+  .phone-frame.editing canvas { opacity: 0.22; }
+  .phone-frame.editing {
+    box-shadow:
+      0 0 0 2px var(--accent),
+      0 0 0 6px #111,
+      0 0 0 7px #2a2a2a,
+      0 16px 44px rgba(0,0,0,0.95);
+  }
+
+  .edit-badge {
+    font-size: 9px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--accent);
+    opacity: 0;
+    padding: 2px 0;
+    transition: opacity 0.2s;
+    pointer-events: none;
+    height: 16px;
+  }
+  .edit-badge.visible { opacity: 0.65; }
+
+  .preview-meta {
+    font-size: 10px;
+    letter-spacing: 1px;
+    color: var(--muted);
+    text-align: center;
+    flex-shrink: 0;
+  }
+  .drag-hint {
+    font-size: 10px;
+    color: var(--muted);
+    letter-spacing: 0.5px;
+    opacity: 0.5;
+  }
+
+  @media (max-width: 720px) {
+    html, body { overflow: auto; }
+    .workspace { flex-direction: column; overflow: visible; }
+    .controls { width: 100%; border-right: none; border-bottom: 1px solid var(--border); overflow: visible; }
+    .preview-area { min-height: 440px; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>BORING WALLPAPER STUDIO</h1>
+  <span>Use your phone intentionally</span>
+</header>
+
+<div class="workspace">
+
+  <!-- ═══ LEFT PANEL ═══ -->
+  <div class="controls">
+
+    <!-- Resolution -->
+    <div class="section">
+      <div class="section-header">Resolution</div>
+      <div class="section-body">
+        <div class="row">
+          <div>
+            <label>Width (px)</label>
+            <input type="number" id="resW" value="390" min="100" max="2000">
+          </div>
+          <div>
+            <label>Height (px)</label>
+            <input type="number" id="resH" value="844" min="100" max="4000">
+          </div>
+        </div>
+        <div class="hint" id="detectedRes">Detecting…</div>
+      </div>
+    </div>
+
+    <!-- Background -->
+    <div class="section">
+      <div class="section-header">Background</div>
+      <div class="section-body">
+        <div>
+          <label>Mode</label>
+          <div class="radio-group">
+            <label><input type="radio" name="bgMode" value="solid"><span>Solid</span></label>
+            <label><input type="radio" name="bgMode" value="gradient" checked><span>Gradient</span></label>
+          </div>
+        </div>
+        <div id="solidOptions" style="display:none;">
+          <label>Color</label>
+          <input type="color" id="bgSolid" value="#000000">
+        </div>
+        <div id="gradientOptions">
+          <label>Direction</label>
+          <select id="gradientDir">
+            <option value="to bottom">Top → Bottom</option>
+            <option value="to top">Bottom → Top</option>
+            <option value="to right">Left → Right</option>
+            <option value="to bottom right">Diagonal ↘</option>
+            <option value="radial">Radial (center out)</option>
+          </select>
+          <div style="margin-top:9px;">
+            <label>Stop 1</label>
+            <div class="stop-row">
+              <input type="color" id="g1color" value="#000000">
+              <input type="range" id="g1pos" min="0" max="100" value="0">
+              <span class="stop-label" id="g1posLabel">0%</span>
+            </div>
+          </div>
+          <div>
+            <label>Stop 2</label>
+            <div class="stop-row">
+              <input type="color" id="g2color" value="#6b6b6b">
+              <input type="range" id="g2pos" min="0" max="100" value="100">
+              <span class="stop-label" id="g2posLabel">100%</span>
+            </div>
+          </div>
+          <div>
+            <label>Stop 3 (optional)</label>
+            <div class="stop-row">
+              <input type="color" id="g3color" value="#888888">
+              <input type="range" id="g3pos" min="0" max="100" value="50">
+              <span class="stop-label" id="g3posLabel">50%</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:8px;margin-top:5px;">
+              <input type="checkbox" id="g3enabled" style="width:auto;accent-color:var(--accent);">
+              <label style="margin:0;font-size:10px;">Enable third stop</label>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Text Style -->
+    <div class="section">
+      <div class="section-header">Text Style</div>
+      <div class="section-body">
+
+        <div>
+          <label>Font</label>
+          <div class="font-row">
+            <select id="fontFamily">
+              <!-- Display / Impact -->
+              <option value="'Bebas Neue', sans-serif" selected>Bebas Neue</option>
+              <option value="'Anton', sans-serif">Anton</option>
+              <option value="'Oswald', sans-serif">Oswald</option>
+              <option value="'Rajdhani', sans-serif">Rajdhani</option>
+              <option value="'Barlow Condensed', sans-serif">Barlow Condensed</option>
+              <!-- Serif -->
+              <option value="'Playfair Display', serif">Playfair Display</option>
+              <option value="'EB Garamond', serif">EB Garamond</option>
+              <option value="'Merriweather', serif">Merriweather</option>
+              <option value="'Libre Baskerville', serif">Libre Baskerville</option>
+              <option value="'Lora', serif">Lora</option>
+              <option value="'DM Serif Display', serif">DM Serif Display</option>
+              <option value="'Cinzel', serif">Cinzel</option>
+              <!-- Mono / Code -->
+              <option value="'Courier Prime', monospace">Courier Prime</option>
+              <option value="'Space Mono', monospace">Space Mono</option>
+              <option value="'Fira Code', monospace">Fira Code</option>
+              <!-- Expressive -->
+              <option value="'Permanent Marker', cursive">Permanent Marker</option>
+              <option value="'Special Elite', cursive">Special Elite</option>
+            </select>
+            <button class="dice-btn" id="diceBtn" title="Random font">🎲</button>
+          </div>
+
+        </div>
+
+        <div class="row">
+          <div>
+            <label>Text Color</label>
+            <input type="color" id="textColor" value="#ffffff">
+          </div>
+          <div>
+            <label>Font Size</label>
+            <input type="number" id="fontSize" value="60" min="10" max="300">
+          </div>
+        </div>
+
+        <div>
+          <label>Text Alignment</label>
+          <div class="radio-group">
+            <label><input type="radio" name="textAlign" value="left" checked><span>Left</span></label>
+            <label><input type="radio" name="textAlign" value="center"><span>Center</span></label>
+          </div>
+        </div>
+
+        <div>
+          <label>Line Height</label>
+          <input type="range" id="lineHeight" min="1" max="3" step="0.1" value="1.6">
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Text Position -->
+    <div class="section">
+      <div class="section-header">
+        Text Position
+        <button class="reset-btn" id="resetPosBtn">Reset</button>
+      </div>
+      <div class="section-body">
+        <div class="hint">Drag text on preview · or use sliders below</div>
+        <div>
+          <label>Horizontal <span id="offsetXLabel" style="color:var(--accent)">22%</span></label>
+          <input type="range" id="offsetX" min="-100" max="100" value="22" step="1">
+        </div>
+        <div>
+          <label>Vertical <span id="offsetYLabel" style="color:var(--accent)">-50%</span></label>
+          <input type="range" id="offsetY" min="-100" max="100" value="-50" step="1">
+        </div>
+      </div>
+    </div>
+
+    <button class="download-btn" onclick="downloadWallpaper()">↓ DOWNLOAD WALLPAPER</button>
+
+  </div><!-- /controls -->
+
+  <!-- ═══ RIGHT PREVIEW PANE ═══ -->
+  <div class="preview-area" id="previewArea">
+
+    <div class="phone-frame" id="phoneFrame">
+      <div class="phone-notch"></div>
+      <canvas id="previewCanvas"></canvas>
+      <textarea id="editTextarea" spellcheck="false" autocomplete="off" autocorrect="off" autocapitalize="off"></textarea>
+    </div>
+
+    <div class="edit-badge" id="editBadge">✎ Editing — click outside to finish</div>
+    <div class="preview-meta" id="previewMeta"></div>
+    <div class="drag-hint" id="dragHint">Click text to edit · Drag to reposition</div>
+
+  </div>
+
+</div>
+
+<canvas id="exportCanvas" style="display:none;"></canvas>
+
+<script>
+// ═══════════════════════════════════════════════════════════
+// FONT LIST (must match <select> values exactly)
+// ═══════════════════════════════════════════════════════════
+const FONTS = [
+  "'Bebas Neue', sans-serif",
+  "'Anton', sans-serif",
+  "'Oswald', sans-serif",
+  "'Rajdhani', sans-serif",
+  "'Barlow Condensed', sans-serif",
+  "'Playfair Display', serif",
+  "'EB Garamond', serif",
+  "'Merriweather', serif",
+  "'Libre Baskerville', serif",
+  "'Lora', serif",
+  "'DM Serif Display', serif",
+  "'Cinzel', serif",
+  "'Courier Prime', monospace",
+  "'Space Mono', monospace",
+  "'Fira Code', monospace",
+  "'Permanent Marker', cursive",
+  "'Special Elite', cursive",
+];
+
+// ═══════════════════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════════════════
+const DEFAULT_TEXT =
+`**Rules of engagement**
+- Call a loved one
+- Answer an important message
+- Take a beautiful photo
+- Search essential information`;
+
+let rawText    = DEFAULT_TEXT;
+let offsetX    = 22;
+let offsetY    = -50;
+let editMode   = false;
+let isDragging = false, hasDragged = false;
+let dragStartX = 0, dragStartY = 0, dragStartOX = 0, dragStartOY = 0;
+let _scale     = 1;
+
+const canvas     = document.getElementById('previewCanvas');
+const editTA     = document.getElementById('editTextarea');
+const editBadge  = document.getElementById('editBadge');
+const dragHint   = document.getElementById('dragHint');
+const phoneFrame = document.getElementById('phoneFrame');
+const fontSel    = document.getElementById('fontFamily');
+// ─── Detect resolution ──────────────────────────────────────
+(function() {
+  const dpr = window.devicePixelRatio || 1;
+  const w = Math.round(screen.width  * dpr);
+  const h = Math.round(screen.height * dpr);
+  document.getElementById('resW').value = w;
+  document.getElementById('resH').value = h;
+  document.getElementById('detectedRes').textContent = `Detected: ${w}×${h}px  (DPR ${dpr})`;
+})();
+
+// ─── Font picker + dice ────────────────────────────────────
+fontSel.addEventListener('change', renderWallpaper);
+
+document.getElementById('diceBtn').addEventListener('click', function() {
+  const current = fontSel.value;
+  const others  = FONTS.filter(f => f !== current);
+  const pick    = others[Math.floor(Math.random() * others.length)];
+  fontSel.value = pick;
+
+  // spin animation
+  this.classList.remove('spin');
+  void this.offsetWidth; // reflow to restart
+  this.classList.add('spin');
+  this.addEventListener('animationend', () => this.classList.remove('spin'), { once: true });
+});
+
+// ─── BG mode toggle ──────────────────────────────────────────
+document.querySelectorAll('input[name="bgMode"]').forEach(r =>
+  r.addEventListener('change', () => {
+    const g = document.querySelector('input[name="bgMode"]:checked').value === 'gradient';
+    document.getElementById('solidOptions').style.display    = g ? 'none'  : 'block';
+    document.getElementById('gradientOptions').style.display = g ? 'block' : 'none';
+    renderWallpaper();
+  })
+);
+
+// ─── Gradient stop labels ────────────────────────────────────
+['g1pos','g2pos','g3pos'].forEach(id => {
+  const el = document.getElementById(id), lb = document.getElementById(id+'Label');
+  el.addEventListener('input', () => { lb.textContent = el.value+'%'; renderWallpaper(); });
+});
+
+// ─── Offset sliders ──────────────────────────────────────────
+document.getElementById('offsetX').addEventListener('input', function() {
+  offsetX = +this.value;
+  document.getElementById('offsetXLabel').textContent = Math.round(offsetX)+'%';
+  renderWallpaper();
+});
+document.getElementById('offsetY').addEventListener('input', function() {
+  offsetY = +this.value;
+  document.getElementById('offsetYLabel').textContent = Math.round(offsetY)+'%';
+  renderWallpaper();
+});
+
+// ─── Reset position ──────────────────────────────────────────
+document.getElementById('resetPosBtn').addEventListener('click', () => {
+  offsetX = 22; offsetY = -50;
+  document.getElementById('offsetX').value = 22;
+  document.getElementById('offsetY').value = -50;
+  document.getElementById('offsetXLabel').textContent = '22%';
+  document.getElementById('offsetYLabel').textContent = '-50%';
+  renderWallpaper();
+});
+
+// ─── Generic control re-render ────────────────────────────────
+document.querySelectorAll('input:not(#offsetX):not(#offsetY), select').forEach(el => {
+  el.addEventListener('change', renderWallpaper);
+  el.addEventListener('input',  renderWallpaper);
+});
+
+// ═══════════════════════════════════════════════════════════
+// TEXT LAYOUT — shared by canvas draw AND textarea positioning
+// Returns { blockTopY, leftEdge, lh, maxTextW } all in canvas px
+// ═══════════════════════════════════════════════════════════
+function getTextLayout(W, H, o) {
+  const lh       = o.fontSize * o.lineHeight;
+  const maxTextW = W * 0.88;
+
+  // We need totalH to centre-align the block vertically.
+  // Build a lightweight line count using a temporary offscreen canvas.
+  const tmp = document.createElement('canvas');
+  tmp.width = W; tmp.height = 4;
+  const tc  = tmp.getContext('2d');
+  tc.textBaseline = 'top';
+
+  const parsed = parseContent(o.textContent);
+  let lineCount = 0;
+  for (const seg of parsed) {
+    if (seg.empty) { lineCount++; continue; }
+    tc.font = (seg.bold ? 'bold ' : '') + `${o.fontSize}px ${o.fontFamily}`;
+    const txt = seg.bullet ? '- ' + seg.text : seg.text;
+    lineCount += wrapText(tc, txt, maxTextW).length;
+  }
+
+  const totalH   = lineCount * lh;
+  const shiftX   = (o.offsetX / 100) * (W / 2);
+  const shiftY   = (o.offsetY / 100) * (H / 2);
+  const blockCenterX = W / 2 + shiftX;
+  const blockTopY    = H / 2 - totalH / 2 + shiftY;
+  const leftEdge     = W / 2 - maxTextW / 2 + shiftX;
+
+  return { blockTopY, blockCenterX, leftEdge, lh, maxTextW, totalH };
+}
+
+// ═══════════════════════════════════════════════════════════
+// IN-PLACE EDITOR
+// ═══════════════════════════════════════════════════════════
+function enterEditMode() {
+  if (editMode) return;
+  editMode = true;
+
+  editTA.value = rawText;
+
+  // Size textarea to match displayed canvas
+  const pW = canvas.offsetWidth;
+  const pH = canvas.offsetHeight;
+  editTA.style.width  = pW + 'px';
+  editTA.style.height = pH + 'px';
+
+  // Compute exact text position in canvas coordinates, then scale to display px
+  const W = parseInt(document.getElementById('resW').value) || 390;
+  const H = parseInt(document.getElementById('resH').value) || 844;
+  const o = getOpts(false);
+  const layout = getTextLayout(W, H, o);
+
+  // Convert canvas-space coords → display-space pixels
+  const dispTop  = layout.blockTopY * _scale;
+  const dispLeft = layout.leftEdge  * _scale;
+  const scaledFs = o.fontSize * _scale;
+  const talign   = o.textAlign;
+  const maxTextWDisplay = layout.maxTextW * _scale;
+
+  editTA.style.fontFamily   = o.fontFamily;
+  editTA.style.fontSize     = scaledFs + 'px';
+  editTA.style.lineHeight   = o.lineHeight;
+  editTA.style.color        = o.textColor;
+  editTA.style.caretColor   = o.textColor;
+  editTA.style.textAlign    = talign;
+
+  if (talign === 'left') {
+    editTA.style.paddingTop    = Math.max(0, dispTop)  + 'px';
+    editTA.style.paddingLeft   = Math.max(0, dispLeft) + 'px';
+    editTA.style.paddingRight  = Math.max(0, pW - dispLeft - maxTextWDisplay) + 'px';
+    editTA.style.paddingBottom = '0px';
+  } else {
+    // center: text is centered around blockCenterX
+    const dispCenter = layout.blockCenterX * _scale;
+    const sidePad    = Math.max(0, pW - maxTextWDisplay) / 2;
+    editTA.style.paddingTop    = Math.max(0, dispTop) + 'px';
+    editTA.style.paddingLeft   = sidePad + 'px';
+    editTA.style.paddingRight  = sidePad + 'px';
+    editTA.style.paddingBottom = '0px';
+  }
+
+  editTA.style.display = 'block';
+  phoneFrame.classList.add('editing');
+  editBadge.classList.add('visible');
+  dragHint.style.visibility = 'hidden';
+
+  renderWallpaper();
+  editTA.focus();
+  editTA.selectionStart = editTA.selectionEnd = editTA.value.length;
+}
+
+function exitEditMode() {
+  if (!editMode) return;
+  editMode = false;
+  rawText = editTA.value;
+  editTA.style.display = 'none';
+  phoneFrame.classList.remove('editing');
+  editBadge.classList.remove('visible');
+  dragHint.style.visibility = '';
+  renderWallpaper();
+}
+
+editTA.addEventListener('input', () => {
+  rawText = editTA.value;
+  renderWallpaper();
+});
+
+// Click outside phone → exit edit
+document.addEventListener('mousedown', e => {
+  if (!editMode) return;
+  if (!phoneFrame.contains(e.target)) exitEditMode();
+});
+
+// ═══════════════════════════════════════════════════════════
+// DRAG + CLICK DETECTION
+// ═══════════════════════════════════════════════════════════
+function evtPos(e) {
+  const r = canvas.getBoundingClientRect();
+  const src = e.touches ? e.touches[0] : (e.changedTouches ? e.changedTouches[0] : e);
+  return { x: src.clientX - r.left, y: src.clientY - r.top };
+}
+function clamp(v, a, b) { return Math.max(a, Math.min(b, v)); }
+
+function updateOffset(dx, dy) {
+  const W = parseInt(document.getElementById('resW').value) || 390;
+  const H = parseInt(document.getElementById('resH').value) || 844;
+  offsetX = clamp(dragStartOX + (dx / _scale) / (W/2) * 100, -100, 100);
+  offsetY = clamp(dragStartOY + (dy / _scale) / (H/2) * 100, -100, 100);
+  document.getElementById('offsetX').value = Math.round(offsetX);
+  document.getElementById('offsetY').value = Math.round(offsetY);
+  document.getElementById('offsetXLabel').textContent = Math.round(offsetX)+'%';
+  document.getElementById('offsetYLabel').textContent = Math.round(offsetY)+'%';
+  renderWallpaper();
+}
+
+canvas.addEventListener('mousedown', e => {
+  if (editMode) return;
+  isDragging = true; hasDragged = false;
+  const p = evtPos(e);
+  dragStartX = p.x; dragStartY = p.y;
+  dragStartOX = offsetX; dragStartOY = offsetY;
+  e.preventDefault();
+});
+canvas.addEventListener('mousemove', e => {
+  if (!isDragging || editMode) return;
+  const p = evtPos(e);
+  const dx = p.x - dragStartX, dy = p.y - dragStartY;
+  if (Math.abs(dx) > 3 || Math.abs(dy) > 3) hasDragged = true;
+  updateOffset(dx, dy);
+  e.preventDefault();
+});
+canvas.addEventListener('mouseup', () => {
+  if (!isDragging) return;
+  isDragging = false;
+  if (!hasDragged) enterEditMode();
+});
+canvas.addEventListener('mouseleave', () => { isDragging = false; });
+
+canvas.addEventListener('touchstart', e => {
+  if (editMode) return;
+  isDragging = true; hasDragged = false;
+  const p = evtPos(e);
+  dragStartX = p.x; dragStartY = p.y;
+  dragStartOX = offsetX; dragStartOY = offsetY;
+  e.preventDefault();
+}, { passive: false });
+canvas.addEventListener('touchmove', e => {
+  if (!isDragging || editMode) return;
+  const p = evtPos(e);
+  const dx = p.x - dragStartX, dy = p.y - dragStartY;
+  if (Math.abs(dx) > 3 || Math.abs(dy) > 3) hasDragged = true;
+  updateOffset(dx, dy);
+  e.preventDefault();
+}, { passive: false });
+canvas.addEventListener('touchend', e => {
+  if (!isDragging) return;
+  isDragging = false;
+  if (!hasDragged) enterEditMode();
+});
+
+// ═══════════════════════════════════════════════════════════
+// DOWNLOAD
+// ═══════════════════════════════════════════════════════════
+function downloadWallpaper() {
+  exitEditMode();
+  const W = parseInt(document.getElementById('resW').value) || 390;
+  const H = parseInt(document.getElementById('resH').value) || 844;
+  const ec = document.getElementById('exportCanvas');
+  ec.width = W; ec.height = H;
+  drawWallpaper(ec.getContext('2d'), W, H, getOpts(false));
+  const a = document.createElement('a');
+  a.download = `boring-wallpaper_${W}x${H}.png`;
+  a.href = ec.toDataURL('image/png');
+  a.click();
+}
+
+// ═══════════════════════════════════════════════════════════
+// CANVAS SIZING
+// ═══════════════════════════════════════════════════════════
+function previewScale(W, H) {
+  const area   = document.getElementById('previewArea');
+  const availH = Math.max((area.clientHeight || 700) - 64, 100);
+  const availW = Math.max((area.clientWidth  || 500) - 64, 100);
+  _scale = Math.min(availW / W, availH / H, 1);
+  return _scale;
+}
+
+// ═══════════════════════════════════════════════════════════
+// TEXT PARSING + WRAP
+// ═══════════════════════════════════════════════════════════
+function parseContent(raw) {
+  return raw.split('\n').map(line => {
+    if (!line.trim()) return { empty: true };
+    const bullet = line.trimStart().startsWith('-');
+    let text = bullet ? line.trimStart().slice(1).trimStart() : line;
+    const bold = text.startsWith('**') && text.endsWith('**') && text.length > 4;
+    if (bold) text = text.slice(2, -2);
+    return { text, bold, bullet, empty: false };
+  });
+}
+
+function wrapText(ctx, text, maxW) {
+  if (!text) return [''];
+  const words = text.split(' ');
+  const out = []; let cur = '';
+  for (const w of words) {
+    const test = cur ? cur + ' ' + w : w;
+    if (ctx.measureText(test).width <= maxW) cur = test;
+    else { if (cur) out.push(cur); cur = w; }
+  }
+  if (cur) out.push(cur);
+  return out.length ? out : [''];
+}
+
+// ═══════════════════════════════════════════════════════════
+// CORE DRAW
+// ═══════════════════════════════════════════════════════════
+function drawWallpaper(ctx, W, H, o) {
+  // Background
+  if (o.bgMode === 'solid') {
+    ctx.fillStyle = document.getElementById('bgSolid').value;
+    ctx.fillRect(0, 0, W, H);
+  } else {
+    const dir  = document.getElementById('gradientDir').value;
+    const g1c  = document.getElementById('g1color').value;
+    const g1p  = +document.getElementById('g1pos').value / 100;
+    const g2c  = document.getElementById('g2color').value;
+    const g2p  = +document.getElementById('g2pos').value / 100;
+    const g3on = document.getElementById('g3enabled').checked;
+    const g3c  = document.getElementById('g3color').value;
+    const g3p  = +document.getElementById('g3pos').value / 100;
+    let grad;
+    if (dir === 'radial') {
+      grad = ctx.createRadialGradient(W/2,H/2,0,W/2,H/2,Math.max(W,H)*0.72);
+    } else {
+      const map = { 'to bottom':[0,0,0,H],'to top':[0,H,0,0],'to right':[0,0,W,0],'to bottom right':[0,0,W,H] };
+      const [x0,y0,x1,y1] = map[dir]||[0,0,0,H];
+      grad = ctx.createLinearGradient(x0,y0,x1,y1);
+    }
+    grad.addColorStop(Math.min(g1p,0.9999),g1c);
+    if (g3on) grad.addColorStop(Math.min(g3p,0.9999),g3c);
+    grad.addColorStop(Math.min(g2p,0.9999),g2c);
+    ctx.fillStyle = grad;
+    ctx.fillRect(0,0,W,H);
+  }
+
+  // In edit mode: just render the dimmed background, textarea shows the text
+  if (o.editMode) return;
+
+  const parsed   = parseContent(o.textContent);
+  const layout   = getTextLayout(W, H, o);
+  const { blockTopY, blockCenterX, leftEdge, lh, maxTextW } = layout;
+  const lines    = [];
+
+  ctx.textBaseline = 'top';
+
+  for (const seg of parsed) {
+    if (seg.empty) { lines.push({ empty: true }); continue; }
+    ctx.font = (seg.bold ? 'bold ' : '') + `${o.fontSize}px ${o.fontFamily}`;
+    const txt = seg.bullet ? '- ' + seg.text : seg.text;
+    wrapText(ctx, txt, maxTextW).forEach(wl =>
+      lines.push({ text: wl, bold: seg.bold && !seg.bullet, empty: false })
+    );
+  }
+
+  ctx.fillStyle = o.textColor;
+  ctx.textAlign = o.textAlign;
+
+  lines.forEach((line, i) => {
+    if (line.empty) return;
+    const y = blockTopY + i * lh;
+    ctx.font = (line.bold ? 'bold ' : '') + `${o.fontSize}px ${o.fontFamily}`;
+    if (o.textAlign === 'center') {
+      ctx.fillText(line.text, blockCenterX, y);
+    } else {
+      ctx.fillText(line.text, leftEdge, y);
+    }
+  });
+}
+
+// ─── Options snapshot ────────────────────────────────────────
+function getOpts(em) {
+  return {
+    bgMode:     document.querySelector('input[name="bgMode"]:checked').value,
+    textContent: rawText,
+    fontFamily: fontSel.value,
+    textColor:  document.getElementById('textColor').value,
+    fontSize:   parseInt(document.getElementById('fontSize').value)    || 60,
+    lineHeight: parseFloat(document.getElementById('lineHeight').value) || 1.6,
+    textAlign:  document.querySelector('input[name="textAlign"]:checked').value,
+    offsetX, offsetY,
+    editMode:   em === undefined ? editMode : em,
+  };
+}
+
+// ─── Render ───────────────────────────────────────────────────
+function renderWallpaper() {
+  const W  = parseInt(document.getElementById('resW').value) || 390;
+  const H  = parseInt(document.getElementById('resH').value) || 844;
+  const sc = previewScale(W, H);
+  const pW = Math.round(W * sc);
+  const pH = Math.round(H * sc);
+
+  canvas.width  = W; canvas.height = H;
+  canvas.style.width  = pW + 'px';
+  canvas.style.height = pH + 'px';
+
+  const frame = document.getElementById('phoneFrame');
+  frame.style.width        = pW + 'px';
+  frame.style.height       = pH + 'px';
+  frame.style.borderRadius = Math.round(36 * sc) + 'px';
+
+  drawWallpaper(canvas.getContext('2d'), W, H, getOpts());
+  document.getElementById('previewMeta').textContent = `${W} × ${H} px`;
+}
+
+window.addEventListener('resize', renderWallpaper);
+document.fonts.ready.then(renderWallpaper);
+</script>
+</body>
+</html>
