@@ -8,7 +8,7 @@ https://pmc.ncbi.nlm.nih.gov/articles/PMC12108933/
 I was looking for ways to reduce my screen time and have a more deliberate and healthy usage. So as part of this effort I created this wallpaper reminder of what I allow myself to do in the phone. Make your own list!
 
 # how do I access the wallpaper generator?
-Visit https://htmlpreview.github.io/?https://github.com/domgom/boring-wallpaper/index.html with your smartphone because it reads your screen resolution.
+Visit https://htmlpreview.github.io/?https://github.com/domgom/boring-wallpaper/refs/heads/main/index.html with your smartphone because it reads your screen resolution.
 
 # disclaimer
 This code was created with the help of AI.
